@@ -1,0 +1,29 @@
+<head>
+	<body>
+		Hello, {{ user_name }} <br>
+		<hr>
+			Available categories are shown below: <br/><br/>
+
+			<form method="post" action="/edit">
+				{% for category in categories %}
+					<input type="radio" name="category_name" value="{{ category.name }}">{{ category.name }}</input> <br/>
+				{% endfor %}
+				<input type="hidden" name="edit_task" value="edit_category" /> <br/>
+				<br/>
+				<input type="submit" value="Edit" />
+			</form>
+		<hr>
+		<form method="post" action="/edit">
+			Create new category: <br/>
+			<input type="text" name="category_name"/>
+			<input type="hidden" name="edit_task" value="create" />
+			<input type="submit" value="Create" />
+		</form>
+
+		{% if error_msg %}
+			<font color="red">{{ error_msg }}</font>
+		{% endif %}
+		<hr>
+		<a href="{{ url }}">{{ url_linktext }}</a>
+	</body>
+</head>

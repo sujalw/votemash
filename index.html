@@ -1,0 +1,26 @@
+<html>
+	<head>
+	</head>
+	<body>
+		<div align="center">
+			Hi, {{ user_name }}
+		</div>
+		<hr>
+		<div align="center">
+			Welcome to the "VoteMash". Please select your task.
+			<br/><br/>
+			<form action="/votemash" method="POST">
+				<div>
+					<input type="radio" name="task" value="edit">Edit</input> <br/>
+					<input type="radio" name="task" value="vote">Vote</input> <br/>
+					<input type="radio" name="task" value="results">See Results</input> <br/>
+
+					<br/>
+					<input type="submit" value="Submit" />
+				</div>
+			</form>
+		</div>
+		<hr>
+		<a href="{{ url }}">{{ url_linktext }}</a>
+	</body>
+</html>
