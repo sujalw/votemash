@@ -1,17 +1,28 @@
-<head>
+<html>
+	<head>
+		<script type="text/javascript">
+			function deleteItem(itemName) {
+				document.getElementById('task_name').value = 'delete_item';
+				document.getElementById('delete_item_name').value = itemName;
+				document.forms["itemsForm"].submit();
+			}
+		</script>
+	</head>
 	<body>
 		Hello, {{ user_name }} <br>
 		<hr>
 			Category : {{ category_name }} <br/>
 			Available items are shown below: <br/><br/>
 
-			<form method="post" action="/editcategory">
+			<form method="post" action="/editcategory" name="itemsForm" id="itemsForm">
 				{% for item in items %}
-					<input type="radio" name="item_name" value="{{ item.name }}">{{ item.name }}</input> <br/>
+					<input type="button" value="X" onclick="javascript:deleteItem('{{ item.name }}')"/><input type="radio" name="item_name" value="{{ item.name }}">{{ item.name }}</input> <br/>
 				{% endfor %}
 
+				<input type="hidden" name="delete_item_name" id="delete_item_name" value="" />
 				<input type="hidden" name="category_name" value="{{ category_name }}" /> <br/>
-				<input type="hidden" name="task_name" value="edit_item" /> <br/>
+				<input type="hidden" name="task_name" id="task_name" value="edit_item" /> <br/>
+				
 				<br/>
 				<input type="submit" value="Edit" />
 			</form>
@@ -30,4 +41,4 @@
 		<hr>
 		<a href="{{ url }}">{{ url_linktext }}</a>
 	</body>
-</head>
+</html>

@@ -1,6 +1,24 @@
-<head>
+<html>
 	<body>
 		Hello, {{ user_name }} <br>
-		Your chosen task is {{ task_name }}
+		<hr>
+			Select a user on whose category you want to vote: <br/><br/>
+			
+			<form method="post" action="/vote">
+				{% for author in authorNames %}
+					{% if author == user_name %}
+						<input type="radio" name="author_name" value="{{ author }}" checked="checked">{{ author }} (self)</input> <br/>
+					{% else %}
+						<input type="radio" name="author_name" value="{{ author }}">{{ author }}</input> <br/>
+					{% endif %}
+				{% endfor %}
+
+				<input type="hidden" id="task_name" name="task_name" value="choose_category" /> <br/>
+				<br/>
+				<input type="submit" value="Continue" />
+			</form>
+			
+			<hr>
+			<a href="{{ url }}">{{ url_linktext }}</a>
 	</body>
-</head>
+</html>

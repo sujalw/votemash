@@ -1,14 +1,24 @@
-<head>
+<html>
+	<head>
+		<script type="text/javascript">
+			function deleteCategory(catName) {
+				document.getElementById('task_name').value = 'delete_category';
+				document.getElementById('delete_category_name').value = catName;
+				document.forms["categoriesForm"].submit();
+			}
+		</script>
+	</head>
 	<body>
 		Hello, {{ user_name }} <br>
 		<hr>
 			Available categories are shown below: <br/><br/>
 
-			<form method="post" action="/edit">
+			<form method="post" action="/edit" name="categoriesForm" id="categoriesForm">
 				{% for category in categories %}
-					<input type="radio" name="category_name" value="{{ category.name }}">{{ category.name }}</input> <br/>
+					<input type="button" value="X" onclick="javascript:deleteCategory('{{ category.name }}')"/><input type="radio" name="category_name" value="{{ category.name }}">{{ category.name }}</input> <br/>
 				{% endfor %}
-				<input type="hidden" name="edit_task" value="edit_category" /> <br/>
+				<input type="hidden" name="delete_category_name" id="delete_category_name" value="" />						
+				<input type="hidden" id="task_name" name="task_name" value="edit_category" /> <br/>
 				<br/>
 				<input type="submit" value="Edit" />
 			</form>
@@ -16,7 +26,7 @@
 		<form method="post" action="/edit">
 			Create new category: <br/>
 			<input type="text" name="category_name"/>
-			<input type="hidden" name="edit_task" value="create" />
+			<input type="hidden" name="task_name" value="create_category" />
 			<input type="submit" value="Create" />
 		</form>
 
@@ -26,4 +36,4 @@
 		<hr>
 		<a href="{{ url }}">{{ url_linktext }}</a>
 	</body>
-</head>
+</html>
