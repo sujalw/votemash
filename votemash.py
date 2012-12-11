@@ -32,12 +32,12 @@ class MainPage(webapp2.RequestHandler):
 			url_linktext = 'Logout'
 
 			# get what action is to be taken
-			task = self.request.get('task')
-			if task:
-				if task == 'edit':
+			task_name = self.request.get('task_name')
+			if task_name:
+				if task_name == 'edit':
 					self.redirect('/edit')
 
-				elif task == 'vote':
+				elif task_name == 'vote':
 					authorNames = set([])
 					
 					categories = db.GqlQuery("SELECT * FROM Category")
@@ -49,20 +49,29 @@ class MainPage(webapp2.RequestHandler):
 						'user_name': user_name,
 						'url': url,
 						'url_linktext': url_linktext,
-						'authorNames': authorNames
+						'authorNames': authorNames,
+						'back_url': self.request.url,
 					}
 
 					template = jinja_environment.get_template('vote.html')
 					self.response.out.write(template.render(template_values))
 
-				elif task == 'results':
+				elif task_name == 'results':
+				
+					categories = db.GqlQuery("SELECT * FROM Category")
+
+					authorNames = set([])
+					for category in categories:
+						authorNames.add(category.author)
+
 					template_values = {
 						'user_name': user_name,
 						'url': url,
 						'url_linktext': url_linktext,
-						'task_name': 'see the leaderboard'
+						'authorNames': authorNames,
+						'back_url': self.request.url,
 					}
-
+									
 					template = jinja_environment.get_template('result.html')
 					self.response.out.write(template.render(template_values))
 
@@ -210,7 +219,8 @@ class Edit(webapp2.RequestHandler):
 			'url': url,
 			'url_linktext': url_linktext,
 			'categories': categories,
-			'error_msg': error_msg
+			'error_msg': error_msg,
+			'back_url': self.request.url,
 		}
 
 		template = jinja_environment.get_template('edit.html')
@@ -228,7 +238,8 @@ class Edit(webapp2.RequestHandler):
 			'url': url,
 			'url_linktext': url_linktext,
 			'items': items,
-			'error_msg': error_msg
+			'error_msg': error_msg,
+			'back_url': self.request.url,
 		}
 
 		template = jinja_environment.get_template('editcategory.html')
@@ -249,8 +260,8 @@ class Vote(webapp2.RequestHandler):
 		selected_user = self.request.get('author_name')
 		
 		task_name = self.request.get('task_name')
-		#self.response.out.write('task_name = ' + task_name)
-		if task_name == "choose_category":		
+
+		if task_name == "choose_category":
 			# display categories of the selected user
 			categories = db.GqlQuery(	"SELECT * "
 										"FROM Category "
@@ -263,6 +274,7 @@ class Vote(webapp2.RequestHandler):
 				'url': url,
 				'url_linktext': url_linktext,
 				'categories': categories,
+				'back_url': self.request.url,
 			}
 		
 			template = jinja_environment.get_template('choosecategory.html')
@@ -356,6 +368,7 @@ class Vote(webapp2.RequestHandler):
 					'url': url,
 					'url_linktext': url_linktext,
 					'itemsToVote': itemsToVote,
+					'back_url': self.request.url,
 				}
 				
 				if vote:
@@ -409,6 +422,64 @@ class Vote(webapp2.RequestHandler):
 				template = jinja_environment.get_template('voteitem.html')
 				self.response.out.write(template.render(template_values))
 				
+#########################  Results  ###############################
+
+class Result(webapp2.RequestHandler):
+
+	def get(self):
+		self.response.out.write('in get')
+
+	def post(self):
+		user_name = users.get_current_user().nickname()
+		url = users.create_logout_url('/')
+		url_linktext = 'Logout'
+						
+		selected_user = self.request.get('author_name')
+		task_name = self.request.get('task_name')
+		
+		if task_name == "choose_category":
+			# display categories of the selected user
+			categories = db.GqlQuery(	"SELECT * "
+										"FROM Category "
+										"WHERE ANCESTOR IS :1 ",
+										category_key(selected_user))
+
+			template_values = {
+				'user_name': user_name,
+				'selected_user': selected_user,
+				'url': url,
+				'url_linktext': url_linktext,
+				'categories': categories,
+				'back_url':self.request.url,
+			}
+		
+			template = jinja_environment.get_template('choosecategoryresults.html')
+			self.response.out.write(template.render(template_values))
+			
+		elif task_name == "view_leaderboard":
+			category_name = self.request.get('category_name')
+			selected_user = self.request.get('selected_user')
+			
+			# get all items ordered by their votesFor
+			items = db.GqlQuery("SELECT * "
+													"FROM Item "
+													"WHERE ANCESTOR IS :1 "
+													"ORDER BY votesFor DESC",
+													item_key(user_name, category_name))
+				
+			template_values = {
+				'user_name': user_name,
+				'category_name': category_name,
+				'selected_user': selected_user,
+				'url': url,
+				'url_linktext': url_linktext,
+				'items': items,
+				'back_url': self.request.url,
+			}
+		
+			template = jinja_environment.get_template('leaderboard.html')
+			self.response.out.write(template.render(template_values))												
+				
 #########################  Misc  ###############################
 
 def category_key(user_name=None):
@@ -421,5 +492,6 @@ app = webapp2.WSGIApplication([('/', MainPage),
 								('/votemash', MainPage),
 								('/editcategory', Edit),
 								('/edit', Edit),
-								('/vote', Vote)], 
+								('/vote', Vote),
+								('/result', Result)], 
 								debug=True)

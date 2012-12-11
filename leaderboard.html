@@ -1,0 +1,37 @@
+<html>
+	<body>
+		Hello, {{ user_name }} <br>
+		<hr>
+		Selected user: {{ selected_user }} <br/><br/>
+		
+		Leaderboard (ordered by positive votes): <br/><br/>
+
+		<table border="1">
+			<tr>
+				<th colspan="3" align="center">Category: {{ category_name }}</th>
+			</tr>
+			<tr>
+				<th>Item Name</th>
+				<th>Votes For</th>
+				<th>Votes Against</th>
+			</tr>
+			{% for item in items %}
+				<tr>
+					<td>{{ item.name }}</td>
+					<td>{{ item.votesFor }}</td>
+					<td>{{ item.votesAgainst }}</td>
+				</tr>
+			{% endfor %}
+		</table>
+		
+		<br/><br/>
+		<form method="post" action="{{ back_url }}">
+			<input type="hidden" name="author_name" value="{{ selected_user }}" /> <br/>
+			<input type="hidden" name="task_name" id="task_name" value="choose_category" /> <br/>	
+			<input type="submit" value="<< Back" />
+		</form>
+
+		<hr>
+		<a href="{{ url }}">{{ url_linktext }}</a>
+	</body>
+</html>

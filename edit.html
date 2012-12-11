@@ -33,6 +33,12 @@
 		{% if error_msg %}
 			<font color="red">{{ error_msg }}</font>
 		{% endif %}
+		
+		<br/><br/>
+		<form method="post" action="/">
+			<input type="submit" value="<< Back" />
+		</form>
+			
 		<hr>
 		<a href="{{ url }}">{{ url_linktext }}</a>
 	</body>

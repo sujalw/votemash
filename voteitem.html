@@ -38,6 +38,15 @@
 			</form>
 		{% endif %}
 		
+		<br/><br/>
+		<form method="post" action="/vote">
+			<input type="hidden" name="task_name" value="choose_category" />
+			<input type="hidden" name="category_name" value="{{ category_name }}" />
+			<input type="hidden" name="author_name" value="{{ selected_user }}" />
+			<input type="hidden" name="selected_user" value="{{ selected_user }}" />
+			<input type="submit" value="<< Back" />
+		</form>
+		
 		<hr>
 		<a href="{{ url }}">{{ url_linktext }}</a>
 	</body>

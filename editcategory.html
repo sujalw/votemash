@@ -24,7 +24,7 @@
 				<input type="hidden" name="task_name" id="task_name" value="edit_item" /> <br/>
 				
 				<br/>
-				<input type="submit" value="Edit" />
+				<!--<input type="submit" value="Edit" />-->
 			</form>
 		<hr>
 		<form method="post" action="/editcategory">
@@ -33,6 +33,11 @@
 			<input type="hidden" name="task_name" value="create_item" />
 			<input type="hidden" name="category_name" value="{{ category_name }}" /> <br/>
 			<input type="submit" value="Create" />
+		</form>
+		
+		<br/><br/>
+		<form method="get" action="/edit">
+			<input type="submit" value="<< Back" />
 		</form>
 
 		{% if error_msg %}

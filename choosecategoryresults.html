@@ -3,23 +3,21 @@
 		Hello, {{ user_name }} <br>
 		<hr>
 		Selected user: {{ selected_user }} <br/><br/>
-		Categories for '{{selected_user}}' are shown below. Select one to vote the items in it. <br/><br/>
+		Categories for '{{selected_user}}' are shown below. Select one to see the leaderboard. <br/><br/>
 		
-		<form method="post" action="/vote" name="categoriesForm" id="categoriesForm">
+		<form method="post" action="/result" name="categoriesForm" id="categoriesForm">
 				{% for category in categories %}
 					<input type="radio" name="category_name" value="{{ category.name }}" checked="checked">{{ category.name }}</input> <br/>
 				{% endfor %}
 
 				<input type="hidden" name="selected_user" value="{{ selected_user }}" /> <br/>
-				<input type="hidden" name="task_name" id="task_name" value="vote_category" /> <br/>
+				<input type="hidden" name="task_name" id="task_name" value="view_leaderboard" /> <br/>
 				
 				<br/>
 				<input type="submit" value="Select" />
-			</form>
-			
-			<br/><br/>
+			</form>			
 			<form method="post" action="/votemash">
-				<input type="hidden" name="task_name" value="vote" />				
+				<input type="hidden" name="task_name" id="task_name" value="results" /> <br/>	
 				<input type="submit" value="<< Back" />
 			</form>
 			
