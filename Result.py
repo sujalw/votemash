@@ -24,8 +24,8 @@ class Result(webapp2.RequestHandler):
 		url = users.create_logout_url('/')
 		url_linktext = 'Logout'
 						
-		selected_user = self.request.get('author_name')
-		task_name = self.request.get('task_name')
+		selected_user = getField(self, 'author_name')
+		task_name = getField(self, 'task_name')
 		
 		if task_name == "choose_category":
 			# display categories of the selected user
@@ -41,14 +41,15 @@ class Result(webapp2.RequestHandler):
 				'url_linktext': url_linktext,
 				'categories': categories,
 				'back_url':self.request.url,
+				'home_url': '/',
 			}
 		
 			template = jinja_environment.get_template('choosecategoryresults.html')
 			self.response.out.write(template.render(template_values))
 			
 		elif task_name == "view_leaderboard":
-			category_name = self.request.get('category_name')
-			selected_user = self.request.get('selected_user')
+			category_name = getField(self, 'category_name')
+			selected_user = getField(self, 'selected_user')
 			
 			# get all items ordered by their votesFor
 			items = db.GqlQuery("SELECT * "
@@ -65,6 +66,7 @@ class Result(webapp2.RequestHandler):
 				'url_linktext': url_linktext,
 				'items': items,
 				'back_url': self.request.url,
+				'home_url': '/',
 			}
 		
 			template = jinja_environment.get_template('leaderboard.html')

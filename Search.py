@@ -24,10 +24,10 @@ class Search(webapp2.RequestHandler):
 		url = users.create_logout_url('/')
 		url_linktext = 'Logout'
 						
-		task_name = self.request.get('task_name')
+		task_name = getField(self, 'task_name')
 		
 		if task_name == "search_items":
-			keywords = self.request.get('keywords')
+			keywords = getField(self, 'keywords')
 			
 			authors = set([])
 						
@@ -63,6 +63,11 @@ class Search(webapp2.RequestHandler):
 							searchResults[item.name] = resultInfo
 						
 			
+			error_msg = None
+			
+			if len(searchResults) == 0:
+				error_msg = "Your search - <b>" + keywords + "</b> - did not match any item."
+			
 			#
 			template_values = {
 				'user_name': user_name,
@@ -70,6 +75,7 @@ class Search(webapp2.RequestHandler):
 				'url': url,
 				'url_linktext': url_linktext,
 				'searchResults': searchResults,
+				'error_msg': error_msg,
 				'back_url': '/',
 				'home_url': '/',
 			}

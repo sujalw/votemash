@@ -15,6 +15,7 @@ jinja_environment = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
 
 class Edit(webapp2.RequestHandler):
+	
 	def get(self):
 		user_name = users.get_current_user().nickname()
 		url = users.create_logout_url('/')
@@ -27,11 +28,11 @@ class Edit(webapp2.RequestHandler):
 		url = users.create_logout_url('/')
 		url_linktext = 'Logout'
 
-		task_name = self.request.get('task_name')
+		task_name = getField(self, 'task_name')
 
 		if task_name == 'edit_category':
 			# display all items in this category and display option to add new items
-			category_name = cgi.escape(self.request.get('category_name')).strip()
+			category_name = self.getField('category_name')
 
 			# get all items from this category
 			items = db.GqlQuery(	"SELECT * "
@@ -42,8 +43,9 @@ class Edit(webapp2.RequestHandler):
 			self.displayItems(user_name, category_name, url, url_linktext)
 
 		elif task_name == 'create_item':
-			category_name = cgi.escape(self.request.get('category_name')).strip()
-			item_name = cgi.escape(self.request.get('item_name')).strip()
+			category_name = getField(self, 'category_name')
+			item_name = getField(self, 'item_name')
+			
 			if item_name:
 				# create a new item under current category, if it is not already present
 				if self.item_present(user_name, category_name, item_name) == False:
@@ -64,7 +66,7 @@ class Edit(webapp2.RequestHandler):
 				self.displayItems(user_name, category_name, url, url_linktext, 'Item name cannot be blank')
 
 		elif task_name == 'create_category':
-			category_name = cgi.escape(self.request.get('category_name')).strip()
+			category_name = getField(self, 'category_name')
 			if category_name:
 				# create a new category, if it is not already created
 				if self.is_present(user_name, category_name) == False:
@@ -83,7 +85,7 @@ class Edit(webapp2.RequestHandler):
 				self.displayCategories(user_name, url, url_linktext, 'Category name cannot be blank')
 
 		elif task_name == 'delete_category':
-			category_name = cgi.escape(self.request.get('delete_category_name')).strip()
+			category_name = getField(self, 'delete_category_name')
 			if category_name:				
 				categories = Category.all()
 				for category in categories:
@@ -94,8 +96,8 @@ class Edit(webapp2.RequestHandler):
 				self.displayCategories(user_name, url, url_linktext)
 				
 		elif task_name == 'delete_item':
-			item_name = cgi.escape(self.request.get('delete_item_name')).strip()
-			category_name = cgi.escape(self.request.get('category_name')).strip()
+			item_name = getField(self, 'delete_item_name')
+			category_name = getField(self, 'category_name')
 			if item_name:				
 				items = Item.all()
 				for item in items:
@@ -142,6 +144,7 @@ class Edit(webapp2.RequestHandler):
 			'categories': categories,
 			'error_msg': error_msg,
 			'back_url': self.request.url,
+			'home_url': '/',
 		}
 
 		template = jinja_environment.get_template('edit.html')
@@ -161,6 +164,7 @@ class Edit(webapp2.RequestHandler):
 			'items': items,
 			'error_msg': error_msg,
 			'back_url': self.request.url,
+			'home_url': '/',
 		}
 
 		template = jinja_environment.get_template('editcategory.html')

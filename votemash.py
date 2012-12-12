@@ -27,7 +27,7 @@ class MainPage(webapp2.RequestHandler):
 			url_linktext = 'Logout'
 
 			# get what action is to be taken
-			task_name = self.request.get('task_name')
+			task_name = getField(self, 'task_name')
 			if task_name:
 				if task_name == 'edit':
 					self.redirect('/edit')
@@ -46,6 +46,7 @@ class MainPage(webapp2.RequestHandler):
 						'url_linktext': url_linktext,
 						'authorNames': authorNames,
 						'back_url': self.request.url,
+						'home_url': '/',
 					}
 
 					template = jinja_environment.get_template('vote.html')
@@ -65,6 +66,7 @@ class MainPage(webapp2.RequestHandler):
 						'url_linktext': url_linktext,
 						'authorNames': authorNames,
 						'back_url': self.request.url,
+						'home_url': '/',
 					}
 									
 					template = jinja_environment.get_template('result.html')
@@ -77,6 +79,7 @@ class MainPage(webapp2.RequestHandler):
 						'url': url,
 						'url_linktext': url_linktext,
 						'back_url': self.request.url,
+						'home_url': '/',
 					}
 									
 					template = jinja_environment.get_template('search.html')
@@ -87,6 +90,7 @@ class MainPage(webapp2.RequestHandler):
 					'user_name': user_name,
 					'url': url,
 					'url_linktext': url_linktext,
+					'home_url': '/',
 				}
 
 				template = jinja_environment.get_template('index.html')

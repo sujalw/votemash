@@ -1,3 +1,5 @@
+import cgi
+
 from google.appengine.ext import db
 
 class Item(db.Model):
@@ -14,3 +16,6 @@ def category_key(user_name=None):
 
 def item_key(user_name=None, category_name=None):
 	return db.Key.from_path('Author', user_name, 'Category', category_name)
+	
+def getField(self, fieldName):
+	return cgi.escape(self.request.get(fieldName)).strip()

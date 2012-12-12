@@ -18,8 +18,8 @@
 			{% for item in items %}
 				<tr>
 					<td>{{ item.name }}</td>
-					<td>{{ item.votesFor }}</td>
-					<td>{{ item.votesAgainst }}</td>
+					<td align="center">{{ item.votesFor }}</td>
+					<td align="center">{{ item.votesAgainst }}</td>
 				</tr>
 			{% endfor %}
 		</table>
@@ -28,7 +28,7 @@
 		<form method="post" action="{{ back_url }}">
 			<input type="hidden" name="author_name" value="{{ selected_user }}" /> <br/>
 			<input type="hidden" name="task_name" id="task_name" value="choose_category" /> <br/>	
-			<input type="submit" value="<< Back" />
+			<input type="submit" value="<< Back" /> <input type="button" value="Home" onclick="location.href='{{ home_url }}'"/>
 		</form>
 
 		<hr>

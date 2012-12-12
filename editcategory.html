@@ -16,15 +16,15 @@
 
 			<form method="post" action="/editcategory" name="itemsForm" id="itemsForm">
 				{% for item in items %}
-					<input type="button" value="X" onclick="javascript:deleteItem('{{ item.name }}')"/><input type="radio" name="item_name" value="{{ item.name }}">{{ item.name }}</input> <br/>
+					<input type="button" value="X" onclick="javascript:deleteItem('{{ item.name }}')"/><input type="radio" name="item_name" value="{{ item.name }}" checked="checked" />{{ item.name }}</input> <br/>
 				{% endfor %}
 
 				<input type="hidden" name="delete_item_name" id="delete_item_name" value="" />
-				<input type="hidden" name="category_name" value="{{ category_name }}" /> <br/>
-				<input type="hidden" name="task_name" id="task_name" value="edit_item" /> <br/>
+				<input type="hidden" name="category_name" value="{{ category_name }}" />
+				<input type="hidden" name="task_name" id="task_name" value="edit_item" />
 				
 				<br/>
-				<!--<input type="submit" value="Edit" />-->
+				<input type="submit" value="Edit" disabled />
 			</form>
 		<hr>
 		<form method="post" action="/editcategory">
@@ -35,14 +35,15 @@
 			<input type="submit" value="Create" />
 		</form>
 		
-		<br/><br/>
-		<form method="get" action="/edit">
-			<input type="submit" value="<< Back" />
-		</form>
-
 		{% if error_msg %}
 			<font color="red">{{ error_msg }}</font>
 		{% endif %}
+		
+		<br/><br/>
+		<form method="get" action="/edit">
+			<input type="submit" value="<< Back" /> <input type="button" value="Home" onclick="location.href='{{ home_url }}'"/>
+		</form>
+		
 		<hr>
 		<a href="{{ url }}">{{ url_linktext }}</a>
 	</body>

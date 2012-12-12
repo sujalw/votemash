@@ -25,9 +25,8 @@ class Vote(webapp2.RequestHandler):
 		url = users.create_logout_url('/')
 		url_linktext = 'Logout'
 						
-		selected_user = self.request.get('author_name')
-		
-		task_name = self.request.get('task_name')
+		selected_user = getField(self, 'author_name')		
+		task_name = getField(self, 'task_name')
 
 		if task_name == "choose_category":
 			# display categories of the selected user
@@ -43,23 +42,24 @@ class Vote(webapp2.RequestHandler):
 				'url_linktext': url_linktext,
 				'categories': categories,
 				'back_url': self.request.url,
+				'home_url': '/',
 			}
 		
 			template = jinja_environment.get_template('choosecategory.html')
 			self.response.out.write(template.render(template_values))
 			
 		elif task_name == "vote_category":
-			category_name = self.request.get('category_name')
-			selected_user = self.request.get('selected_user')
+			category_name = getField(self, 'category_name')
+			selected_user = getField(self, 'selected_user')
 			
 			self.displayItemsToVote(user_name, selected_user, category_name, url, url_linktext)						
 			
 		elif task_name == "cast_vote":
-			selected_user = self.request.get('selected_user')
-			category_name = self.request.get('category_name')
-			vote = self.request.get('item_to_vote')
-			item1 = self.request.get('item1')
-			item2 = self.request.get('item2')
+			selected_user = getField(self, 'selected_user')
+			category_name = getField(self, 'category_name')
+			vote = getField(self, 'item_to_vote')
+			item1 = getField(self, 'item1')
+			item2 = getField(self, 'item2')
 			
 			self.displayItemsToVote(user_name, selected_user, category_name, url, url_linktext, vote, item1, item2)
 						
@@ -89,6 +89,7 @@ class Vote(webapp2.RequestHandler):
 					'url_linktext': url_linktext,
 					'itemsToVote': itemsToVote,
 					'back_url': self.request.url,
+					'home_url': '/',
 				}
 				
 				if vote:
@@ -137,6 +138,7 @@ class Vote(webapp2.RequestHandler):
 					'url': url,
 					'url_linktext': url_linktext,		
 					'error_msg': "The category does not have enough items to vote",
+					'home_url': '/',
 				}
 		
 				template = jinja_environment.get_template('voteitem.html')

@@ -11,14 +11,15 @@
 	<body>
 		Hello, {{ user_name }} <br>
 		<hr>
-			Available categories are shown below: <br/><br/>
+			Available categories are shown below: <br/><br />
+			Click on '<font color="red">X</font>' to delete the category <br/><br />
 
 			<form method="post" action="/edit" name="categoriesForm" id="categoriesForm">
 				{% for category in categories %}
-					<input type="button" value="X" onclick="javascript:deleteCategory('{{ category.name }}')"/><input type="radio" name="category_name" value="{{ category.name }}">{{ category.name }}</input> <br/>
+					<a href="javascript:deleteCategory('{{ category.name }}')" style="text-decoration:none"><font color="red">X</font></a><input type="radio" name="category_name" value="{{ category.name }}" checked="checked" />{{ category.name }}</input> <br/>
 				{% endfor %}
 				<input type="hidden" name="delete_category_name" id="delete_category_name" value="" />						
-				<input type="hidden" id="task_name" name="task_name" value="edit_category" /> <br/>
+				<input type="hidden" id="task_name" name="task_name" value="edit_category" />
 				<br/>
 				<input type="submit" value="Edit" />
 			</form>
@@ -36,7 +37,7 @@
 		
 		<br/><br/>
 		<form method="post" action="/">
-			<input type="submit" value="<< Back" />
+			<input type="submit" value="<< Back" /> <input type="button" value="Home" onclick="location.href='{{ home_url }}'"/>
 		</form>
 			
 		<hr>
