@@ -30,6 +30,8 @@ class Search(webapp2.RequestHandler):
 			keywords = getField(self, 'keywords')
 			
 			authors = set([])
+			# dict to store search results
+			searchResults = {}
 						
 			# get all users of the system
 			categories = Category.all()
@@ -44,8 +46,7 @@ class Search(webapp2.RequestHandler):
 																	"WHERE ANCESTOR IS :1 ",
 																	category_key(author))
 																	
-				# dict to store search results
-				searchResults = {}
+				
 								
 				for category in categories:
 					# search for all items in each category
@@ -55,15 +56,19 @@ class Search(webapp2.RequestHandler):
 																item_key(user_name, category.name))
 														
 					for item in items:
-						if keywords in item.name:
+						#self.response.out.write("<br/>" + keywords.upper() + ", " + item.name.upper())
+						# do case insensitive match						
+						if keywords.upper() in item.name.upper():
+							#self.response.out.write("<br/>match found")
 							resultInfo = {}
 							resultInfo['category'] = category.name
 							resultInfo['author'] = author
 							
 							searchResults[item.name] = resultInfo
-						
 			
 			error_msg = None
+			#self.response.out.write("<br/> len = " + str(len(searchResults)))
+			#self.response.out.write(searchResults)
 			
 			if len(searchResults) == 0:
 				error_msg = "Your search - <b>" + keywords + "</b> - did not match any item."

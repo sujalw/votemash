@@ -7,16 +7,16 @@
 				<font color="red">{{ error_msg }}</font>
 			
 			{% else %}
-				Select a user whose data you want to export: <br/><br/>
+				Select a user whose categories you want to export: <br/><br/>
 			
-				<form method="post" action="/vote">
+				<form method="post" action="/edit">
 					{% for author in authorNames %}
 						{% if author != user_name %}
 							<input type="radio" name="author_name" value="{{ author }}" checked="checked">{{ author }}</input> <br/>						
 						{% endif %}
 					{% endfor %}
 
-					<input type="hidden" id="task_name" name="task_name" value="choose_category" /> <br/>
+					<input type="hidden" id="task_name" name="task_name" value="choose_categories" /> <br/>
 					<br/>
 					<input type="submit" value="Continue" />
 				</form>

@@ -7,7 +7,6 @@ import os
 import random
 
 from Data import *
-from xml.etree.ElementTree import Element, SubElement, tostring
 
 from google.appengine.ext import db
 from google.appengine.api import users
@@ -139,8 +138,46 @@ class Edit(webapp2.RequestHandler):
 			template = jinja_environment.get_template('selectuser.html')
 			self.response.out.write(template.render(template_values))
 			
+		elif task_name == "choose_categories":
+			# display categories to choose to export
+			categories = db.GqlQuery(	"SELECT * "
+										"FROM Category "
+										"WHERE ANCESTOR IS :1 ",
+										category_key(user_name))
+
+			template_values = {
+				'user_name': user_name,
+				'url': url,
+				'url_linktext': url_linktext,
+				'categories': categories,
+				'back_url': self.request.url,
+				'home_url': '/',
+			}
+		
+			template = jinja_environment.get_template('choosecategories.html')
+			self.response.out.write(template.render(template_values))
+			
+		elif task_name == "export_categories":
+			#self.response.out.write("in export categories<br/>")
+						
+			selectedCategory = getField(self, 'category_name')			
+			exportToXml(self, user_name, selectedCategory)
+			
 		elif task_name == 'import':
-			self.response.out.write("import")
+			template_values = {
+				'user_name': user_name,
+				'url': url,
+				'url_linktext': url_linktext,
+				'back_url': self.request.url,
+				'home_url': '/',
+			}
+
+			template = jinja_environment.get_template('import.html')
+			self.response.out.write(template.render(template_values))
+			
+		elif task_name == 'import_category':
+			category_file = getField(self, 'imported_file')
+			importCategory(self, user_name, category_file)
 
 	def is_present(self, user_name, category_name):
 		categories = db.GqlQuery(	"SELECT * "

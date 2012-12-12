@@ -1,0 +1,32 @@
+<html>
+	<body>
+		Hello, {{ user_name }} <br>
+		<hr>
+		All created categories are shown below. Choose atleast one to export. <br/><br/>
+		
+		<form method="post" action="/edit" name="categoriesForm" id="categoriesForm">
+				{% for category in categories %}
+					<input type="radio" name="category_name" value="{{ category.name }}" checked="checked">{{ category.name }}</input> <br/>
+				{% endfor %}
+				
+				<input type="hidden" name="task_name" id="task_name" value="export_categories" /> <br/>
+				
+				<br/>
+				<input type="submit" value="Export >>" />
+				
+				{% if status_msg %}
+					<br/><br/>
+					<font color="#008800">{{ status_msg }}</font>
+				{% endif %}
+			</form>
+			
+			<br/><br/>
+			<form method="post" action="/votemash">
+				<input type="hidden" name="task_name" value="vote" />				
+				<input type="submit" value="<< Back" /> <input type="button" value="Home" onclick="location.href='{{ home_url }}'"/>
+			</form>
+			
+			<hr>
+			<a href="{{ url }}">{{ url_linktext }}</a>
+	</body>
+</html>
