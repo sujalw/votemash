@@ -7,10 +7,10 @@ import os
 import random
 
 #from data import *
-from Search import *
-from Edit import *
-from Vote import *
-from Result import *
+from core/Search import *
+from core/Edit import *
+from core/Vote import *
+from core/Result import *
 
 from google.appengine.ext import db
 from google.appengine.api import users
