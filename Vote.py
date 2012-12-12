@@ -62,55 +62,7 @@ class Vote(webapp2.RequestHandler):
 			item2 = self.request.get('item2')
 			
 			self.displayItemsToVote(user_name, selected_user, category_name, url, url_linktext, vote, item1, item2)
-			'''
-			items = db.GqlQuery("SELECT * "
-													"FROM Item "
-													"WHERE ANCESTOR IS :1 ",
-													item_key(selected_user, category_name))
-			
-			# update votes for item 1
-			item1_votes = 0
-			for item in items:
-				if item.name == item1:
-					if vote == "1":
-						item.votesFor = item.votesFor + 1						
-					else:
-						item.votesAgainst = item.votesAgainst + 1
 						
-					item1_votes = item.votesFor						
-					item.put()
-					
-					break
-					
-			# update votes for item 2
-			item2_votes = 0
-			for item in items:
-				if item.name == item2:
-					if vote == "2":
-						item.votesFor = item.votesFor + 1
-					else:
-						item.votesAgainst = item.votesAgainst + 1
-						
-					item2_votes = item.votesFor						
-					item.put()
-					
-					break
-					
-			template_values = {			
-				'user_name': user_name,
-				'selected_user': selected_user,
-				'category_name': category_name,
-				'url': url,
-				'url_linktext': url_linktext,		
-				'votedFor': item1 if vote=="1" else item2,
-				'votedAgainst': item2 if vote=="1" else item1,
-				'votedFor_votes': item1_votes if vote=="1" else item2_votes,
-				'votedAgainst_votes': item2_votes if vote=="1" else item1_votes,
-			}
-		
-			template = jinja_environment.get_template('voteitem.html')
-			self.response.out.write(template.render(template_values))'''
-			
 	def displayItemsToVote(self, user_name, selected_user, category_name, url, url_linktext, vote=None, item1=None, item2=None):
 		# select 2 random items in this category. Display error message in case of not enough items, i.e <2
 			items = db.GqlQuery("SELECT * "

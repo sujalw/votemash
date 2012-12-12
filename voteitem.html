@@ -1,4 +1,11 @@
 <html>
+	<head>
+		<script type="text/javascript">
+			function skipVote() {
+				alert("in skip")
+			}
+		</script>
+	</head>
 	<body>
 		<h2><font color="#EE7700">Hello, {{ user_name }}</font></h2> <br>
 		<hr>
@@ -29,12 +36,19 @@
 			
 				<input type="hidden" name="cast_vote" />
 				<input type="hidden" name="category_name" value="{{ category_name }}" /> <br/>
-				<input type="hidden" name="selected_user" value="{{ selected_user }}" /> <br/>
+				<input type="hidden" name="selected_user" value="{{ selected_user }}" />
 			
-				<input type="hidden" name="item1" value="{{itemsToVote[0]}}" /> <br/>
+				<input type="hidden" name="item1" value="{{itemsToVote[0]}}" />
 				<input type="hidden" name="item2" value="{{itemsToVote[1]}}" />			
 				<input type="hidden" name="task_name" id="task_name" value="cast_vote" />
-				<input type="submit" value="Vote"/>
+				
+				<input type="submit" value="Vote"/> 				
+			</form>
+			<form method="post" action="/vote">
+				<input type="hidden" name="task_name" id="task_name" value="vote_category" />				
+				<input type="hidden" name="selected_user" value="{{ selected_user }}" /> 
+				<input type="hidden" name="category_name" value="{{ category_name }}" /> <br/>
+				<input type="submit" value="Skip >>" />
 			</form>
 		{% endif %}
 		
