@@ -6,23 +6,53 @@
 				document.getElementById('delete_category_name').value = catName;
 				document.forms["categoriesForm"].submit();
 			}
+			
+			function importCategories() {
+				document.getElementById('import_export_task').value = 'import';
+				document.forms['importExportForm'].submit();
+			}
+			
+			function exportCategories() {
+				document.getElementById('import_export_task').value = 'export';
+				document.forms['importExportForm'].submit();
+			}
+
 		</script>
 	</head>
 	<body>
 		Hello, {{ user_name }} <br>
 		<hr>
-			Available categories are shown below: <br/><br />
-			Click on '<font color="red">X</font>' to delete the category <br/><br />
-
-			<form method="post" action="/edit" name="categoriesForm" id="categoriesForm">
-				{% for category in categories %}
-					<a href="javascript:deleteCategory('{{ category.name }}')" style="text-decoration:none"><font color="red">X</font></a><input type="radio" name="category_name" value="{{ category.name }}" checked="checked" />{{ category.name }}</input> <br/>
-				{% endfor %}
-				<input type="hidden" name="delete_category_name" id="delete_category_name" value="" />						
-				<input type="hidden" id="task_name" name="task_name" value="edit_category" />
-				<br/>
-				<input type="submit" value="Edit" />
+		
+			{% if no_category_error_msg %}
+				<font color="red">{{ no_category_error_msg }}</font> <br/><br/>
+				
+				<form method="post" action="/edit" name="importExportForm" id="importExportForm">
+				<input type="hidden" name="task_name" id="import_export_task" value="" />
+				<input type="button" value="Import Categories" onclick="javascript:importCategories()"/> <input type="button" value="Export Categories" disabled />
 			</form>
+		
+			{% else %}
+				Following are the categories created by you : <br/><br />
+				Click on '<font color="red">X</font>' to delete the category <br/><br />
+
+				<form method="post" action="/edit" name="categoriesForm" id="categoriesForm">
+					{% for category in categories %}
+						<a href="javascript:deleteCategory('{{ category.name }}')" style="text-decoration:none"><font color="red">X</font></a><input type="radio" name="category_name" value="{{ category.name }}" checked="checked" />{{ category.name }}</input> <br/>
+					{% endfor %}
+					<input type="hidden" name="delete_category_name" id="delete_category_name" value="" />						
+					<input type="hidden" id="task_name" name="task_name" value="edit_category" />
+					<br/>
+					<input type="submit" value="Edit" />
+				</form>
+				
+				<form method="post" action="/edit" name="importExportForm" id="importExportForm">
+				<input type="hidden" name="task_name" id="import_export_task" value="" />
+				<input type="button" value="Import Categories" onclick="javascript:importCategories()"/> <input type="button" value="Export Categories" onclick="javascript:exportCategories()" />
+			</form>
+			{% endif %}
+			
+			
+			
 		<hr>
 		<form method="post" action="/edit">
 			Create new category: <br/>

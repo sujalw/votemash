@@ -1,0 +1,34 @@
+<html>
+	<body>
+		Hello, {{ user_name }} <br>
+		<hr>
+			
+			{% if error_msg %}
+				<font color="red">{{ error_msg }}</font>
+			
+			{% else %}
+				Select a user whose data you want to export: <br/><br/>
+			
+				<form method="post" action="/vote">
+					{% for author in authorNames %}
+						{% if author != user_name %}
+							<input type="radio" name="author_name" value="{{ author }}" checked="checked">{{ author }}</input> <br/>						
+						{% endif %}
+					{% endfor %}
+
+					<input type="hidden" id="task_name" name="task_name" value="choose_category" /> <br/>
+					<br/>
+					<input type="submit" value="Continue" />
+				</form>
+			{% endif %}
+			
+			<br/><br/>
+			<form method="get" action="{{ back_url }}">
+				<input type="hidden" name="task_name" value="edit_category" />
+				<input type="submit" value="<< Back" /> <input type="button" value="Home" onclick="location.href='{{ home_url }}'"/>
+			</form>
+					
+			<hr>
+			<a href="{{ url }}">{{ url_linktext }}</a>
+	</body>
+</html>

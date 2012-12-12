@@ -7,6 +7,7 @@ import os
 import random
 
 from Data import *
+from xml.etree.ElementTree import Element, SubElement, tostring
 
 from google.appengine.ext import db
 from google.appengine.api import users
@@ -32,7 +33,7 @@ class Edit(webapp2.RequestHandler):
 
 		if task_name == 'edit_category':
 			# display all items in this category and display option to add new items
-			category_name = self.getField('category_name')
+			category_name = getField(self, 'category_name')
 
 			# get all items from this category
 			items = db.GqlQuery(	"SELECT * "
@@ -106,6 +107,40 @@ class Edit(webapp2.RequestHandler):
 						break
 
 				self.displayItems(user_name, category_name, url, url_linktext)
+				
+		elif task_name == 'export':
+			#self.response.out.write("export")
+			#self.response.headers['Content-Type'] = 'text/csv'
+			#self.response.headers['Content-Disposition'] = "attachment; filename=fname.csv"
+			#self.response.out.write(','.join(['a', 'cool', 'test']))
+			
+			# display users to choose one for exporting data
+			authorNames = set([])
+					
+			categories = db.GqlQuery("SELECT * FROM Category")
+
+			for category in categories:
+				authorNames.add(category.author)
+				
+			error_msg = None
+			if len(authorNames) <= 1:
+				error_msg = "There are no other users in the system"
+				
+			template_values = {
+						'user_name': user_name,
+						'url': url,
+						'url_linktext': url_linktext,
+						'authorNames': authorNames,
+						'error_msg': error_msg,
+						'back_url': self.request.url,
+						'home_url': '/',
+					}
+
+			template = jinja_environment.get_template('selectuser.html')
+			self.response.out.write(template.render(template_values))
+			
+		elif task_name == 'import':
+			self.response.out.write("import")
 
 	def is_present(self, user_name, category_name):
 		categories = db.GqlQuery(	"SELECT * "
@@ -136,12 +171,17 @@ class Edit(webapp2.RequestHandler):
 									"FROM Category "
 									"WHERE ANCESTOR IS :1 ",
 									category_key(user_name))
+									
+		no_category_error_msg = None
+		if categories.count() == 0:
+			no_category_error_msg = "No categories created by you"
 
 		template_values = {
 			'user_name': user_name,
 			'url': url,
 			'url_linktext': url_linktext,
 			'categories': categories,
+			'no_category_error_msg': no_category_error_msg,
 			'error_msg': error_msg,
 			'back_url': self.request.url,
 			'home_url': '/',
@@ -156,6 +196,10 @@ class Edit(webapp2.RequestHandler):
 								"WHERE ANCESTOR IS :1 ",
 								item_key(user_name, category_name))
 
+		no_items_error_msg = None
+		if items.count() == 0:
+			no_items_error_msg = "No items in the current category"
+			
 		template_values = {
 			'user_name': user_name,
 			'category_name': category_name,
@@ -163,6 +207,7 @@ class Edit(webapp2.RequestHandler):
 			'url_linktext': url_linktext,
 			'items': items,
 			'error_msg': error_msg,
+			'no_items_error_msg': no_items_error_msg,
 			'back_url': self.request.url,
 			'home_url': '/',
 		}
