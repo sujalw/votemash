@@ -83,6 +83,76 @@ class Edit(webapp2.RequestHandler):
 			else:
 				# display error message
 				self.displayCategories(user_name, url, url_linktext, 'Category name cannot be blank')
+				
+		elif task_name == 'rename_category':
+			category_name = getField(self, 'category_name')
+			category_name_new = getField(self, 'category_name_new')
+			
+			if isEmpty(category_name_new):
+				self.displayItems(user_name, category_name, url, url_linktext, "", "name cannot be blank")
+				
+			else:			
+				categories = db.GqlQuery(	"SELECT * "
+																	"FROM Category "
+																	"WHERE ANCESTOR IS :1 ",
+																	category_key(user_name))
+
+				# transfer all items from old category to the new one
+				for category in categories:
+					if category.name == category_name:
+					
+						# create a new category with new name
+						category_new = Category(parent=category_key(category.author))
+						category_new.author = ''.join(category.author)
+						category_new.name = ''.join(category_name_new)
+						category_new.put()
+					
+						# get all items in the category with old name
+						items = db.GqlQuery(	"SELECT * "
+																	"FROM Item "
+																	"WHERE ANCESTOR IS :1 ",
+																	item_key(category.author, category.name))
+
+						# transfer all items from old category in the new category
+						for item in items:
+							item_new = Item(parent=item_key(category_new.author, category_new.name))
+							item_new.name = ''.join(item.name)
+							item_new.votesFor = item.votesFor
+							item_new.votesAgainst = item.votesAgainst
+							item_new.put()
+						
+							item.delete()
+												
+						# remove the old category
+						category.delete()
+					
+						break
+					
+				self.displayItems(user_name, category_name_new, url, url_linktext, "", "Category renamed successfully.")
+				
+		elif task_name == 'rename_item':
+			category_name = getField(self, 'category_name')
+			item_name_old = getField(self, 'item_name_old')
+			item_name_new = getField(self, 'item_name_new')
+			
+			# get all items
+			items = db.GqlQuery(	"SELECT * "
+														"FROM Item "
+														"WHERE ANCESTOR IS :1 ",
+														item_key(user_name, category_name))
+														
+			# find item to rename
+			for item in items:
+				if item.name == item_name_old:
+					createNewItem(item_name_new, category_name, user_name, item.votesFor, item.votesAgainst)
+					
+					# delete old item
+					item.delete()
+					
+					break
+					
+			self.displayItems(user_name, category_name, url, url_linktext, "", "", "Item renamed successfully.")
+					
 
 		elif task_name == 'delete_category':
 			category_name = getField(self, 'delete_category_name')
@@ -227,7 +297,7 @@ class Edit(webapp2.RequestHandler):
 		template = jinja_environment.get_template('edit.html')
 		self.response.out.write(template.render(template_values))
 
-	def displayItems(self, user_name, category_name, url, url_linktext, error_msg=None):
+	def displayItems(self, user_name, category_name, url, url_linktext, error_msg=None, status_msg=None, status_msg_item=None):
 		items = db.GqlQuery(	"SELECT * "
 								"FROM Item "
 								"WHERE ANCESTOR IS :1 ",
@@ -244,6 +314,8 @@ class Edit(webapp2.RequestHandler):
 			'url_linktext': url_linktext,
 			'items': items,
 			'error_msg': error_msg,
+			'status_msg': status_msg,
+			'status_msg_item': status_msg_item,
 			'no_items_error_msg': no_items_error_msg,
 			'back_url': self.request.url,
 			'home_url': '/',

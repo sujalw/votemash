@@ -6,12 +6,27 @@
 				document.getElementById('delete_item_name').value = itemName;
 				document.forms["itemsForm"].submit();
 			}
+			
+			function renameItem(itemName) {
+				item_name_new = document.getElementById(itemName).value;
+				document.getElementById("item_name_old").value = itemName
+				document.getElementById("item_name_new").value = item_name_new
+								
+				document.forms["renameItemForm"].submit();
+			}
 		</script>
 	</head>
 	<body>
 		Hello, {{ user_name }} <br>
 		<hr>
-			Category : {{ category_name }} <br/><br/>
+			<form method="post" action="/edit">
+				Category : <input type="text" name="category_name_new" value="{{ category_name }}" /> <input type="submit" value="Rename" /> <br/>
+				<input type="hidden" name="task_name" value="rename_category" />
+				<input type="hidden" name="category_name" value="{{ category_name }}" />
+			</form>
+			{% if status_msg %}
+				<font color="#008800">{{ status_msg }}</font><br/><br/>
+			{% endif %}
 			
 			{% if no_items_error_msg %}
 				<font color="red">{{ no_items_error_msg }}</font>
@@ -22,17 +37,29 @@
 
 				<form method="post" action="/editcategory" name="itemsForm" id="itemsForm">
 					{% for item in items %}
-						<a href="javascript:deleteItem('{{ item.name }}')" style="text-decoration:none"><font color="red">X</font></a><input type="radio" name="item_name" value="{{ item.name }}" checked="checked" />{{ item.name }}</input> <br/>
+						<a href="javascript:deleteItem('{{ item.name }}')" style="text-decoration:none"><font color="red">X</font></a><input type="radio" name="item_name" value="{{ item.name }}" checked="checked" /><input type="text" id="{{ item.name }}" value="{{ item.name }}"></input> <input type="button" value="Rename" onclick="javascript:renameItem('{{ item.name }}')"/><br/>
 					{% endfor %}
+					
+					{% if status_msg_item %}
+						<font color="#008800">{{ status_msg_item }}</font>
+					{% endif %}
 
 					<input type="hidden" name="delete_item_name" id="delete_item_name" value="" />
 					<input type="hidden" name="category_name" value="{{ category_name }}" />
 					<input type="hidden" name="task_name" id="task_name" value="edit_item" />
 				
 					<br/>
-					<input type="submit" value="Edit" disabled />
+					<!--<input type="submit" value="Edit" disabled />-->
 				</form>
 			{% endif %}
+			
+			<form method="post" action="/editcategory" id="renameItemForm" name="renameItemForm">
+				<input type="hidden" name="item_name_old" id="item_name_old" value="xyz" />
+				<input type="hidden" name="item_name_new" id="item_name_new" value="abc" />
+				<input type="hidden" name="category_name" value="{{ category_name }}" />
+				<input type="hidden" name="task_name" value="rename_item" />
+			</form>
+			
 		<hr>
 		<form method="post" action="/editcategory">
 			Create new item: <br/>

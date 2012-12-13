@@ -38,6 +38,16 @@ def getField(self, fieldName):
 	
 def getFields(self, fieldName):
 	return self.request.get_all(fieldName)
+	
+def createNewItem(item_name, category_name, user_name, votes_for, votes_against):
+	item_new = Item(parent=item_key(user_name, category_name))
+	item_new.name = item_name
+	item_new.votesFor = votes_for
+	item_new.votesAgainst = votes_against
+	item_new.put()
+	
+def isEmpty(txt):
+	return txt == ""
 
 def exportToXml(self, user_name, selectedCategory):
 	#self.response.out.write("<br/> inside export xml")

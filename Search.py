@@ -45,8 +45,6 @@ class Search(webapp2.RequestHandler):
 																	"FROM Category "
 																	"WHERE ANCESTOR IS :1 ",
 																	category_key(author))
-																	
-				
 								
 				for category in categories:
 					# search for all items in each category
