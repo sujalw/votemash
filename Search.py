@@ -26,7 +26,7 @@ class Search(webapp2.RequestHandler):
 						
 		task_name = getField(self, 'task_name')
 		
-		if task_name == "search_items":
+		if task_name == "search":
 			keywords = getField(self, 'keywords')
 			
 			authors = set([])
@@ -51,10 +51,10 @@ class Search(webapp2.RequestHandler):
 					# check for match with category name
 					if keywords.upper() in category.name.upper():
 						resultInfo = {}
-						resultInfo['item'] = " "
+						resultInfo['category'] = category.name
 						resultInfo['author'] = author
 						
-						searchResults[category.name] = resultInfo
+						searchResults[' '] = resultInfo
 						
 					# search for all items in each category
 					items = db.GqlQuery(	"SELECT * "
@@ -68,10 +68,10 @@ class Search(webapp2.RequestHandler):
 						if keywords.upper() in item.name.upper():
 							#self.response.out.write("<br/>match found")
 							resultInfo = {}
-							resultInfo['item'] = item.name
+							resultInfo['category'] = category.name
 							resultInfo['author'] = author
 							
-							searchResults[category.name] = resultInfo
+							searchResults[item.name] = resultInfo
 			
 			error_msg = None
 			#self.response.out.write("<br/> len = " + str(len(searchResults)))
