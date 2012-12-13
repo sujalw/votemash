@@ -67,7 +67,7 @@ class Vote(webapp2.RequestHandler):
 			items = db.GqlQuery("SELECT * "
 													"FROM Item "
 													"WHERE ANCESTOR IS :1 ",
-													item_key(user_name, category_name))
+													item_key(selected_user, category_name))
 													
 			if items.count() >= 2:
 				index1 = random.randint(0, items.count()-1)
