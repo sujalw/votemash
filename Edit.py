@@ -67,22 +67,27 @@ class Edit(webapp2.RequestHandler):
 
 		elif task_name == 'create_category':
 			category_name = getField(self, 'category_name')
-			if category_name:
-				# create a new category, if it is not already created
-				if self.is_present(user_name, category_name) == False:
-					category = Category(parent=category_key(user_name))
-					category.author = user_name
-					category.name = category_name
-					category.put()
+			
+			if isEmpty(category_name):
+				self.displayCategories(user_name, url, url_linktext, 'Category name cannot be blank')
+			
+			else:
+				if category_name:
+					# create a new category, if it is not already created
+					if self.is_present(user_name, category_name) == False:
+						category = Category(parent=category_key(user_name))
+						category.author = user_name
+						category.name = category_name
+						category.put()
 
-					self.displayCategories(user_name, url, url_linktext)
+						self.displayCategories(user_name, url, url_linktext)
 
+					else:
+						# display error message
+						self.displayCategories(user_name, url, url_linktext, 'Category "' + category_name + '" has already been created')
 				else:
 					# display error message
-					self.displayCategories(user_name, url, url_linktext, 'Category "' + category_name + '" has already been created')
-			else:
-				# display error message
-				self.displayCategories(user_name, url, url_linktext, 'Category name cannot be blank')
+					self.displayCategories(user_name, url, url_linktext, 'Category name cannot be blank')
 				
 		elif task_name == 'rename_category':
 			category_name = getField(self, 'category_name')
@@ -135,23 +140,27 @@ class Edit(webapp2.RequestHandler):
 			item_name_old = getField(self, 'item_name_old')
 			item_name_new = getField(self, 'item_name_new')
 			
-			# get all items
-			items = db.GqlQuery(	"SELECT * "
-														"FROM Item "
-														"WHERE ANCESTOR IS :1 ",
-														item_key(user_name, category_name))
+			if isEmpty(item_name_new):
+				self.displayItems(user_name, category_name, url, url_linktext, "", "", "Item name cannot be blank")
+			
+			else:
+				# get all items
+				items = db.GqlQuery(	"SELECT * "
+															"FROM Item "
+															"WHERE ANCESTOR IS :1 ",
+															item_key(user_name, category_name))
 														
-			# find item to rename
-			for item in items:
-				if item.name == item_name_old:
-					createNewItem(item_name_new, category_name, user_name, item.votesFor, item.votesAgainst)
+				# find item to rename
+				for item in items:
+					if item.name == item_name_old:
+						createNewItem(item_name_new, category_name, user_name, item.votesFor, item.votesAgainst)
 					
-					# delete old item
-					item.delete()
+						# delete old item
+						item.delete()
 					
-					break
+						break
 					
-			self.displayItems(user_name, category_name, url, url_linktext, "", "", "Item renamed successfully.")
+				self.displayItems(user_name, category_name, url, url_linktext, "", "", "Item renamed successfully.")
 					
 
 		elif task_name == 'delete_category':
