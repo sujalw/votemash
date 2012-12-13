@@ -47,7 +47,6 @@ class Search(webapp2.RequestHandler):
 																	category_key(author))
 								
 				for category in categories:
-				
 					# check for match with category name
 					if keywords.upper() in category.name.upper():
 						resultInfo = {}
@@ -60,13 +59,11 @@ class Search(webapp2.RequestHandler):
 					items = db.GqlQuery(	"SELECT * "
 																"FROM Item "
 																"WHERE ANCESTOR IS :1 ",
-																item_key(user_name, category.name))
+																item_key(author, category.name))
 														
 					for item in items:
-						#self.response.out.write("<br/>" + keywords.upper() + ", " + item.name.upper())
 						# do case insensitive match						
 						if keywords.upper() in item.name.upper():
-							#self.response.out.write("<br/>match found")
 							resultInfo = {}
 							resultInfo['category'] = category.name
 							resultInfo['author'] = author
