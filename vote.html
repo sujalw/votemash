@@ -9,7 +9,7 @@
 					{% if author == user_name %}
 						<input type="radio" name="author_name" value="{{ author }}" checked="checked">{{ author }} (self)</input> <br/>
 					{% else %}
-						<input type="radio" name="author_name" value="{{ author }}">{{ author }}</input> <br/>
+						<input type="radio" name="author_name" value="{{ author }}" checked="checked">{{ author }}</input> <br/>
 					{% endif %}
 				{% endfor %}
 

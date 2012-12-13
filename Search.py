@@ -47,6 +47,15 @@ class Search(webapp2.RequestHandler):
 																	category_key(author))
 								
 				for category in categories:
+				
+					# check for match with category name
+					if keywords.upper() in category.name.upper():
+						resultInfo = {}
+						resultInfo['item'] = " "
+						resultInfo['author'] = author
+						
+						searchResults[category.name] = resultInfo
+						
 					# search for all items in each category
 					items = db.GqlQuery(	"SELECT * "
 																"FROM Item "
@@ -59,10 +68,10 @@ class Search(webapp2.RequestHandler):
 						if keywords.upper() in item.name.upper():
 							#self.response.out.write("<br/>match found")
 							resultInfo = {}
-							resultInfo['category'] = category.name
+							resultInfo['item'] = item.name
 							resultInfo['author'] = author
 							
-							searchResults[item.name] = resultInfo
+							searchResults[category.name] = resultInfo
 			
 			error_msg = None
 			#self.response.out.write("<br/> len = " + str(len(searchResults)))
