@@ -56,7 +56,7 @@ class Result(webapp2.RequestHandler):
 													"FROM Item "
 													"WHERE ANCESTOR IS :1 "
 													"ORDER BY votesFor DESC",
-													item_key(user_name, category_name))
+													item_key(selected_user, category_name))
 				
 			template_values = {
 				'user_name': user_name,
