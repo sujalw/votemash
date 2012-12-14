@@ -218,16 +218,19 @@ class Edit(webapp2.RequestHandler):
 			self.response.out.write(template.render(template_values))
 			
 		elif task_name == "choose_categories":
+			selected_user = getField(self, 'selected_user')
+			
 			# display categories to choose to export
 			categories = db.GqlQuery(	"SELECT * "
 										"FROM Category "
 										"WHERE ANCESTOR IS :1 ",
-										category_key(user_name))
+										category_key(selected_user))
 
 			template_values = {
 				'user_name': user_name,
 				'url': url,
 				'url_linktext': url_linktext,
+				'selected_user': selected_user,
 				'categories': categories,
 				'back_url': self.request.url,
 				'home_url': '/',
@@ -238,7 +241,7 @@ class Edit(webapp2.RequestHandler):
 			
 		elif task_name == "export_categories":
 			#self.response.out.write("in export categories<br/>")
-						
+			selected_user = getField(self, 'selected_user')			
 			selectedCategory = getField(self, 'category_name')			
 			exportToXml(self, user_name, selectedCategory)
 			

@@ -12,7 +12,7 @@
 				<form method="post" action="/edit">
 					{% for author in authorNames %}
 						{% if author != user_name %}
-							<input type="radio" name="author_name" value="{{ author }}" checked="checked">{{ author }}</input> <br/>						
+							<input type="radio" name="selected_user" value="{{ author }}" checked="checked">{{ author }}</input> <br/>						
 						{% endif %}
 					{% endfor %}
 

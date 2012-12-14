@@ -54,7 +54,6 @@ def exportToXml(self, user_name, selectedCategory):
 	self.response.headers['Content-Type'] = 'text/xml'
 	file_name = selectedCategory.replace(' ', '_')
 	self.response.headers['Content-Disposition'] = "attachment; filename=" + str(file_name) + ".xml"
-	#self.response.out.write(','.join(['a', 'cool', 'test']))
 	
 	# create xml file
 	

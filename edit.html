@@ -28,7 +28,7 @@
 				
 				<form method="post" action="/edit" name="importExportForm" id="importExportForm">
 				<input type="hidden" name="task_name" id="import_export_task" value="" />
-				<input type="button" value="Import Categories" onclick="javascript:importCategories()"/> <input type="button" value="Export Categories" disabled />
+				<input type="button" value="Import Categories" onclick="javascript:importCategories()"/> <input type="button" value="Export Categories" onclick="javascript:exportCategories()" />
 			</form>
 		
 			{% else %}
