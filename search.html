@@ -14,7 +14,7 @@
 					</tr>
 					{% for searchResult in searchResults %}
 						<tr>
-							<td>{{ searchResult }}</td>
+							<td>{{ searchResults.get(searchResult).get('item') }}</td>
 							<td>{{ searchResults.get(searchResult).get('category') }}</td>
 							<td>{{ searchResults.get(searchResult).get('author') }}</td>
 						</tr>

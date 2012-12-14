@@ -74,7 +74,7 @@ class Edit(webapp2.RequestHandler):
 			else:
 				if category_name:
 					# create a new category, if it is not already created
-					if self.is_present(user_name, category_name) == False:
+					if is_present(self, user_name, category_name) == False:
 						category = Category(parent=category_key(user_name))
 						category.author = user_name
 						category.name = category_name
@@ -97,43 +97,49 @@ class Edit(webapp2.RequestHandler):
 				self.displayItems(user_name, category_name, url, url_linktext, "", "name cannot be blank")
 				
 			else:			
-				categories = db.GqlQuery(	"SELECT * "
-																	"FROM Category "
-																	"WHERE ANCESTOR IS :1 ",
-																	category_key(user_name))
+				# create a new category, if it is not already created
+				if is_present(self, user_name, category_name_new) == False:			
+					categories = db.GqlQuery(	"SELECT * "
+																		"FROM Category "
+																		"WHERE ANCESTOR IS :1 ",
+																		category_key(user_name))
 
-				# transfer all items from old category to the new one
-				for category in categories:
-					if category.name == category_name:
+					# transfer all items from old category to the new one
+					for category in categories:
+						if category.name == category_name:
 					
-						# create a new category with new name
-						category_new = Category(parent=category_key(category.author))
-						category_new.author = ''.join(category.author)
-						category_new.name = ''.join(category_name_new)
-						category_new.put()
+							# create a new category with new name
+							category_new = Category(parent=category_key(category.author))
+							category_new.author = ''.join(category.author)
+							category_new.name = ''.join(category_name_new)
+							category_new.put()
 					
-						# get all items in the category with old name
-						items = db.GqlQuery(	"SELECT * "
-																	"FROM Item "
-																	"WHERE ANCESTOR IS :1 ",
-																	item_key(category.author, category.name))
+							# get all items in the category with old name
+							items = db.GqlQuery(	"SELECT * "
+																		"FROM Item "
+																		"WHERE ANCESTOR IS :1 ",
+																		item_key(category.author, category.name))
 
-						# transfer all items from old category in the new category
-						for item in items:
-							item_new = Item(parent=item_key(category_new.author, category_new.name))
-							item_new.name = ''.join(item.name)
-							item_new.votesFor = item.votesFor
-							item_new.votesAgainst = item.votesAgainst
-							item_new.put()
+							# transfer all items from old category in the new category
+							for item in items:
+								item_new = Item(parent=item_key(category_new.author, category_new.name))
+								item_new.name = ''.join(item.name)
+								item_new.votesFor = item.votesFor
+								item_new.votesAgainst = item.votesAgainst
+								item_new.put()
 						
-							item.delete()
+								item.delete()
 												
-						# remove the old category
-						category.delete()
+							# remove the old category
+							category.delete()
 					
-						break
+							break
 					
-				self.displayItems(user_name, category_name_new, url, url_linktext, "", "Category renamed successfully.")
+					self.displayItems(user_name, category_name_new, url, url_linktext, "", "Category renamed successfully.")
+					
+				else:
+					# display error message
+						self.displayCategories(user_name, url, url_linktext, 'Error: Category "' + category_name_new + '" has already been created')
 				
 		elif task_name == 'rename_item':
 			category_name = getField(self, 'category_name')
@@ -259,20 +265,9 @@ class Edit(webapp2.RequestHandler):
 			
 		elif task_name == 'import_category':
 			category_file = getField(self, 'imported_file')
-			importCategory(self, user_name, category_file)
-
-	def is_present(self, user_name, category_name):
-		categories = db.GqlQuery(	"SELECT * "
-									"FROM Category "
-									"WHERE ANCESTOR IS :1 ",
-									category_key(user_name))
-
-		for category in categories:
-			if category.name == category_name:
-				return True
-
-		return False
-		
+			back_url = getField(self, 'back_url')
+			importCategory(self, user_name, category_file, url, url_linktext, back_url)
+	
 	def item_present(self, user_name, category_name, item_name):
 		items = db.GqlQuery("SELECT * "
 							"FROM Item "

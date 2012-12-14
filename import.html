@@ -10,9 +10,14 @@
 				<input type="submit" value="Import" />
 			</form>
 			
+			{% if error_msg %}
+				<br/><font color="red">{{ error_msg }}</font>
+			{% endif %}
+			
 			<br/><br/>
 			<form method="get" action="{{ back_url }}">
 				<input type="hidden" name="task_name" value="edit_category" />
+				<input type="hidden" name="back_url" value="{{ back_url }}" />
 				<input type="submit" value="<< Back" /> <input type="button" value="Home" onclick="location.href='{{ home_url }}'"/>
 			</form>
 			

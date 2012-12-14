@@ -52,8 +52,9 @@ class Search(webapp2.RequestHandler):
 						resultInfo = {}
 						resultInfo['category'] = category.name
 						resultInfo['author'] = author
+						resultInfo['item'] = ' '
 						
-						searchResults[' '] = resultInfo
+						searchResults[getUniqueKey(author, category.name, ' ')] = resultInfo
 						
 					# search for all items in each category
 					items = db.GqlQuery(	"SELECT * "
@@ -67,8 +68,9 @@ class Search(webapp2.RequestHandler):
 							resultInfo = {}
 							resultInfo['category'] = category.name
 							resultInfo['author'] = author
+							resultInfo['item'] = item.name
 							
-							searchResults[item.name] = resultInfo
+							searchResults[getUniqueKey(author, category.name, item.name)] = resultInfo
 			
 			error_msg = None
 			#self.response.out.write("<br/> len = " + str(len(searchResults)))
