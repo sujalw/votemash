@@ -174,11 +174,6 @@ def importCategoryAdvanced(self, user_name, category_file, url, url_linktext, ba
 					if child.tag == "ITEM":
 						childName = child.findall('NAME')
 						createNewItem(item_name=childName[0].text, category_name=category_new.name, user_name=category_new.author, votes_for=0, votes_against=0)
-						
-			else:
-				# common items are not affected
-				# items present in existing category but not in imported category, are deleted
-				# items not present in existing category but present in imported category are inserted
 												
 			else:
 				error_msg = "Conflict: Category '" + categoryName + "' cannot be imported."		
