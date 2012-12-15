@@ -65,8 +65,8 @@ def createNewItem(item_name, category_name, user_name, votes_for, votes_against)
 	item_name = item_name.strip()
 	category_name = category_name.strip()
 	user_name = user_name.strip()
-	votes_for = votes_for.strip()
-	votes_against = votes_against.strip()
+	votes_for = votes_for
+	votes_against = votes_against
 
 	item_new = Item(parent=item_key(user_name, category_name))
 	item_new.name = item_name
