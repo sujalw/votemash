@@ -249,7 +249,7 @@ class Edit(webapp2.RequestHandler):
 			#self.response.out.write("in export categories<br/>")
 			selected_user = getField(self, 'selected_user')			
 			selectedCategory = getField(self, 'category_name')			
-			exportToXml(self, user_name, selectedCategory)
+			exportToXml(self, selected_user, selectedCategory)
 			
 		elif task_name == 'import':
 			template_values = {

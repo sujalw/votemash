@@ -87,8 +87,10 @@ def exportToXml(self, user_name, selectedCategory):
 		itemTag = SubElement(root, 'ITEM')
 		itemNameTag = SubElement(itemTag, 'NAME')
 		itemNameTag.text = item.name
+		#itemNameTag.votesFor = item.votesFor
+		#itemNameTag.votesAgainst = item.votesAgainst
 		
-	self.response.out.write(tostring(root, encoding="us-ascii", method="xml"))	
+	self.response.out.write(tostring(root))	
 
 def importCategory(self, user_name, category_file, url, url_linktext, back_url):
 
@@ -122,6 +124,61 @@ def importCategory(self, user_name, category_file, url, url_linktext, back_url):
 					if child.tag == "ITEM":
 						childName = child.findall('NAME')
 						createNewItem(item_name=childName[0].text, category_name=category_new.name, user_name=category_new.author, votes_for=0, votes_against=0)
+												
+			else:
+				error_msg = "Conflict: Category '" + categoryName + "' cannot be imported."		
+		else:
+			error_msg = "Invalid XML file"
+		
+	template_values = {
+				'user_name': user_name,
+				'url': url,
+				'url_linktext': url_linktext,
+				'back_url': back_url,
+				'error_msg': error_msg,
+				'home_url': '/',
+			}
+
+	template = jinja_environment.get_template('import.html')
+	self.response.out.write(template.render(template_values))
+	
+def importCategoryAdvanced(self, user_name, category_file, url, url_linktext, back_url):
+
+	if category_file == "":
+		error_msg = "Error: No file uploaded or blank file"
+	else:
+		x = self.request.POST.multi['imported_file'].file.read()
+
+		# check whether the xml file is a valid one and according to the desired format and tag names
+		status_valid, error_msg = isValidXML(self, x)
+		if status_valid:	
+			dom = xml.dom.minidom.parseString(x)
+	
+			# parse xml file		
+			root = fromstring(x)						
+			categoryName = root.findall('NAME')
+			
+			categoryName = categoryName[0].text
+			#self.response.out.write("<br/>category = " + categoryName)
+			
+			# check whether the category with the same name is already present
+			if is_present(self, user_name, categoryName) == False:
+				# create a new category with new name
+				category_new = Category(parent=category_key(user_name))
+				category_new.author = user_name
+				category_new.name = categoryName
+				category_new.put()
+
+				# add items in the newly created category
+				for child in root:
+					if child.tag == "ITEM":
+						childName = child.findall('NAME')
+						createNewItem(item_name=childName[0].text, category_name=category_new.name, user_name=category_new.author, votes_for=0, votes_against=0)
+						
+			else:
+				# common items are not affected
+				# items present in existing category but not in imported category, are deleted
+				# items not present in existing category but present in imported category are inserted
 												
 			else:
 				error_msg = "Conflict: Category '" + categoryName + "' cannot be imported."		
