@@ -266,7 +266,8 @@ class Edit(webapp2.RequestHandler):
 		elif task_name == 'import_category':
 			category_file = getField(self, 'imported_file')
 			back_url = getField(self, 'back_url')
-			importCategory(self, user_name, category_file, url, url_linktext, back_url)
+			#importCategory(self, user_name, category_file, url, url_linktext, back_url)
+			importCategoryAdvanced(self, user_name, category_file, url, url_linktext, back_url)
 	
 	def item_present(self, user_name, category_name, item_name):
 		items = db.GqlQuery("SELECT * "

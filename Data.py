@@ -49,9 +49,16 @@ def is_present(self, user_name, category_name):
 														category_key(user_name))
 
 	for category in categories:
-		if category.name.upper() == category_name.upper():
+		if category.name.strip().upper() == category_name.strip().upper():
 			return True
 
+	return False
+	
+def is_present_item(self, itemsList, itemName_test):
+	for itemName in itemsList:
+		if itemName.strip().upper() == itemName_test.strip().upper():
+			return True
+			
 	return False
 	
 def createNewItem(item_name, category_name, user_name, votes_for, votes_against):
@@ -63,6 +70,25 @@ def createNewItem(item_name, category_name, user_name, votes_for, votes_against)
 	
 def isEmpty(txt):
 	return txt.strip() == ""
+	
+def getItemsFromXML(contents):
+	# it assumes that the given contents are valid
+
+	# get only unique items
+	itemNames = set([])
+	
+	dom = xml.dom.minidom.parseString(contents)
+	
+	# parse xml file		
+	root = fromstring(contents)						
+	
+	# add items in the newly created category
+	for child in root:
+		if child.tag == "ITEM":
+			childName = child.findall('NAME')[0].text
+			itemNames.add(childName.strip())
+			
+	return itemNames
 
 def exportToXml(self, user_name, selectedCategory):
 	#self.response.out.write("<br/> inside export xml")
@@ -148,17 +174,17 @@ def importCategoryAdvanced(self, user_name, category_file, url, url_linktext, ba
 		error_msg = "Error: No file uploaded or blank file"
 	else:
 		x = self.request.POST.multi['imported_file'].file.read()
+		x = x.replace('\n', '')
 
 		# check whether the xml file is a valid one and according to the desired format and tag names
 		status_valid, error_msg = isValidXML(self, x)
 		if status_valid:	
-			dom = xml.dom.minidom.parseString(x)
+			#dom = xml.dom.minidom.parseString(x)
 	
 			# parse xml file		
-			root = fromstring(x)						
+			root = fromstring(x)
 			categoryName = root.findall('NAME')
-			
-			categoryName = categoryName[0].text
+			categoryName = categoryName[0].text.strip()
 			#self.response.out.write("<br/>category = " + categoryName)
 			
 			# check whether the category with the same name is already present
@@ -172,11 +198,46 @@ def importCategoryAdvanced(self, user_name, category_file, url, url_linktext, ba
 				# add items in the newly created category
 				for child in root:
 					if child.tag == "ITEM":
-						childName = child.findall('NAME')
-						createNewItem(item_name=childName[0].text, category_name=category_new.name, user_name=category_new.author, votes_for=0, votes_against=0)
+						childName = child.findall('NAME')[0].text.strip()
+						createNewItem(item_name=childName, category_name=category_new.name, user_name=category_new.author, votes_for=0, votes_against=0)
 												
 			else:
-				error_msg = "Conflict: Category '" + categoryName + "' cannot be imported."		
+				#error_msg = "Conflict: Category '" + categoryName + "' cannot be imported."
+				
+				# remove all items those are already in the category but not in the new imported category
+				# reset vote counts of all items present both old and imported categories
+				# add all new items
+				categories = db.GqlQuery(	"SELECT * "
+																	"FROM Category "
+																	"WHERE ANCESTOR IS :1 ",
+																	category_key(user_name))
+
+				for category in categories:
+					if category.name.upper() == categoryName.upper():
+						items = db.GqlQuery(	"SELECT * "
+																	"FROM Item "
+																	"WHERE ANCESTOR IS :1 ",
+																	item_key(user_name, categoryName))
+																	
+						itemNames = getItemsFromXML(x)
+																	
+						for item in items:
+							#if item.name in itemNames:
+							if is_present_item(self, itemNames, item.name):
+								# retain common items. remove it from itemNames as it is not required further
+								itemNames.remove(item.name)
+								pass
+								
+							else:
+								# remove items those are not in imported category
+								item.delete()
+								
+						# add all new items in the category
+						for itemName in itemNames:
+							createNewItem(item_name=itemName, category_name=categoryName, user_name=user_name, votes_for=0, votes_against=0)
+						
+						break
+				
 		else:
 			error_msg = "Invalid XML file"
 		
