@@ -25,7 +25,11 @@
 				<input type="hidden" name="category_name" value="{{ category_name }}" />
 			</form>
 			{% if status_msg %}
-				<font color="#008800">{{ status_msg }}</font><br/><br/>
+				{% if isError %}
+					<font color="red">{{ status_msg }}</font><br/><br/>
+				{% else %}
+					<font color="#008800">{{ status_msg }}</font><br/><br/>
+				{% endif %}
 			{% endif %}
 			
 			{% if no_items_error_msg %}

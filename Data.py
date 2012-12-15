@@ -140,7 +140,7 @@ def importCategory(self, user_name, category_file, url, url_linktext, back_url):
 			root = fromstring(x)						
 			categoryName = root.findall('NAME')
 			
-			categoryName = categoryName[0].text
+			categoryName = categoryName[0].text.strip()
 			#self.response.out.write("<br/>category = " + categoryName)
 			
 			# check whether the category with the same name is already present
@@ -191,61 +191,61 @@ def importCategoryAdvanced(self, user_name, category_file, url, url_linktext, ba
 			root = fromstring(x)
 			categoryName = root.findall('NAME')
 			categoryName = categoryName[0].text.strip()
-			#self.response.out.write("<br/>category = " + categoryName)
 			
-			# check whether the category with the same name is already present
-			if is_present(self, user_name, categoryName) == False:
-				# create a new category with new name
-				category_new = Category(parent=category_key(user_name))
-				category_new.author = user_name
-				category_new.name = categoryName
-				category_new.put()
-
-				# add items in the newly created category
-				for child in root:
-					if child.tag == "ITEM":
-						childName = child.findall('NAME')[0].text.strip()
-						createNewItem(item_name=childName, category_name=category_new.name, user_name=category_new.author, votes_for=0, votes_against=0)
-												
+			if isEmpty(categoryName):
+				error_msg = "Error: Category name cannot be blank"
+			
 			else:
-				#error_msg = "Conflict: Category '" + categoryName + "' cannot be imported."
-				
-				# remove all items those are already in the category but not in the new imported category
-				# reset vote counts of all items present both old and imported categories
-				# add all new items
-				categories = db.GqlQuery(	"SELECT * "
-																	"FROM Category "
-																	"WHERE ANCESTOR IS :1 ",
-																	category_key(user_name))
+				# check whether the category with the same name is already present
+				if is_present(self, user_name, categoryName) == False:
+					# create a new category with new name
+					category_new = Category(parent=category_key(user_name))
+					category_new.author = user_name
+					category_new.name = categoryName
+					category_new.put()
 
-				for category in categories:
-					if category.name.upper() == categoryName.upper():
-						items = db.GqlQuery(	"SELECT * "
-																	"FROM Item "
-																	"WHERE ANCESTOR IS :1 ",
-																	item_key(user_name, categoryName))
-																	
-						itemNames = getItemsFromXML(x)
-																	
-						for item in items:
-							#if item.name in itemNames:
-							if is_present_item(self, itemNames, item.name):
-								# retain common items. remove it from itemNames as it is not required further
-								itemNames.remove(item.name)
-								pass
-								
-							else:
-								# remove items those are not in imported category
-								item.delete()
-								
-						# add all new items in the category
-						for itemName in itemNames:
-							createNewItem(item_name=itemName, category_name=categoryName, user_name=user_name, votes_for=0, votes_against=0)
-						
-						break
+					# add items in the newly created category
+					for child in root:
+						if child.tag == "ITEM":
+							childName = child.findall('NAME')[0].text.strip()
+							createNewItem(item_name=childName, category_name=category_new.name, user_name=category_new.author, votes_for=0, votes_against=0)
+												
+				else:
+					#error_msg = "Conflict: Category '" + categoryName + "' cannot be imported."
 				
-		else:
-			error_msg = "Invalid XML file"
+					# remove all items those are already in the category but not in the new imported category
+					# reset vote counts of all items present both old and imported categories
+					# add all new items
+					categories = db.GqlQuery(	"SELECT * "
+																		"FROM Category "
+																		"WHERE ANCESTOR IS :1 ",
+																		category_key(user_name))
+
+					for category in categories:
+						if category.name.upper() == categoryName.upper():
+							items = db.GqlQuery(	"SELECT * "
+																		"FROM Item "
+																		"WHERE ANCESTOR IS :1 ",
+																		item_key(user_name, categoryName))
+																	
+							itemNames = getItemsFromXML(x)
+																	
+							for item in items:
+								#if item.name in itemNames:
+								if is_present_item(self, itemNames, item.name):
+									# retain common items. remove it from itemNames as it is not required further
+									itemNames.remove(item.name)
+									pass
+								
+								else:
+									# remove items those are not in imported category
+									item.delete()
+								
+							# add all new items in the category
+							for itemName in itemNames:
+								createNewItem(item_name=itemName, category_name=categoryName, user_name=user_name, votes_for=0, votes_against=0)
+						
+							break
 		
 	template_values = {
 				'user_name': user_name,
@@ -273,20 +273,26 @@ def isValidXML(self, contents):
 	if root.tag == "CATEGORY":
 		categoryName = root.findall('NAME')
 		if len(categoryName) == 1:
-			for child in root:
-				if child.tag == "ITEM":
-					childName = child.findall('NAME')
-					if len(childName) == 1:
-						pass
+			categoryName = categoryName[0].text
+			if isEmpty(categoryName):
+				return False, "Error: Category name cannot be blank"
+			else:
+				for child in root:
+					if child.tag == "ITEM":
+						childName = child.findall('NAME')
+						if len(childName) == 1:
+							itemName = childName[0].text
+							if isEmpty(itemName):
+								return False, "Error: Item name cannot be blank"
+						else:
+							self.response.out.write("<br/>child with no tag or more than one tags with name='NAME' present")
+							return False, "Error: Exactly one <NAME> tag expected for each <ITEM>"
 					else:
-						self.response.out.write("<br/>child with no tag or more than one tags with name='NAME' present")
-						return False, "Error: Exactly one <NAME> tag expected for each <ITEM>"
-				else:
-					if category_name_found == False:
-						category_name_found = True
-						pass
-					else:
-						return False, "Error: Invalid tag : '" + child.tag + "'"
+						if category_name_found == False:
+							category_name_found = True
+							pass
+						else:
+							return False, "Error: Invalid tag : '" + child.tag + "'"
 		else:
 			return False, "Error: Root tag CATEGORY has more than one <NAME> tags"
 	else:

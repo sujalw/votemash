@@ -94,7 +94,7 @@ class Edit(webapp2.RequestHandler):
 			category_name_new = getField(self, 'category_name_new')
 			
 			if isEmpty(category_name_new):
-				self.displayItems(user_name, category_name, url, url_linktext, "", "name cannot be blank")
+				self.displayItems(user_name, category_name, url, url_linktext, "", "Error: name cannot be blank", '', True)
 				
 			else:			
 				# create a new category, if it is not already created
@@ -139,7 +139,7 @@ class Edit(webapp2.RequestHandler):
 					
 				else:
 					# display error message
-						self.displayCategories(user_name, url, url_linktext, 'Error: Category "' + category_name_new + '" has already been created')
+						self.displayItems(user_name, category_name, url, url_linktext, "", 'Error: Category "' + category_name_new + '" has already been created', '', True)
 				
 		elif task_name == 'rename_item':
 			category_name = getField(self, 'category_name')
@@ -305,7 +305,7 @@ class Edit(webapp2.RequestHandler):
 		template = jinja_environment.get_template('edit.html')
 		self.response.out.write(template.render(template_values))
 
-	def displayItems(self, user_name, category_name, url, url_linktext, error_msg=None, status_msg=None, status_msg_item=None):
+	def displayItems(self, user_name, category_name, url, url_linktext, error_msg=None, status_msg=None, status_msg_item=None, isError=False):
 		items = db.GqlQuery(	"SELECT * "
 								"FROM Item "
 								"WHERE ANCESTOR IS :1 ",
@@ -325,6 +325,7 @@ class Edit(webapp2.RequestHandler):
 			'status_msg': status_msg,
 			'status_msg_item': status_msg_item,
 			'no_items_error_msg': no_items_error_msg,
+			'isError':isError,
 			'back_url': self.request.url,
 			'home_url': '/',
 		}
