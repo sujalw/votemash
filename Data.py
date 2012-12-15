@@ -91,46 +91,22 @@ def exportToXml(self, user_name, selectedCategory):
 	self.response.out.write(tostring(root, encoding="us-ascii", method="xml"))	
 
 def importCategory(self, user_name, category_file, url, url_linktext, back_url):
-	# parse the category file
-	#self.response.out.write(category_file)
-	#tree = ET.parse(codecs.open(StringIO(cgi.escape(category_file))), encoding="UTF-8")
-	#codecs.open("file.xml", encoding="UTF-8")
+
+	if category_file == "":
+		error_msg = "Error: No file uploaded or blank file"
+	else:
+		x = self.request.POST.multi['imported_file'].file.read()
+
+		# check whether the xml file is a valid one and according to the desired format and tag names
+		status_valid, error_msg = isValidXML(self, x)
+		if status_valid:	
+			dom = xml.dom.minidom.parseString(x)
 	
-	#self.response.out.write("<br/> in import category")
-	#x = category_file
-	
-	#self.response.out.write(x)
-	#dom = xml.dom.minidom.parseString(x)
-	x = "<CATEGORY><NAME>Operating Systems</NAME><ITEM><NAME>Linux</NAME></ITEM><ITEM><NAME>Windows 8</NAME></ITEM><ITEM><NAME>Mac OSX</NAME></ITEM><ITEM><NAME>Solaris</NAME></ITEM></CATEGORY>"
-	
-	#x = "    "
-	
-	
-	
-	# validate whether the xml file is a valid one and according to the desired format and tag names
-	if isEmpty(x)==False and isValidXML(x):	
-	
-		dom = xml.dom.minidom.parseString(x)
-		#tree = ET.XML(category_file, parser=None)
-		#dom = parseString(category_file.encode('utf-8'))
-		#dom = xml.dom.minidom.parse(StringIO(category_file.encode('utf-8')))
-	
-		#xml_contents = fromstring(cgi.escape(category_file))	
-		#root = xml_contents.getroot()
-		#self.response.out.write(root)
-	
-		#self.response.out.write(category_file)
-		#element = ET.XML(category_file.encode('utf-8'))
-		
-		error_msg = None
-	
-		# parse xml file
-		if x == "":
-			error_msg = "XML file is blank"
-		else:
-			root = fromstring(x)
-						
-			categoryName = root.findall('NAME')[0].text
+			# parse xml file		
+			root = fromstring(x)						
+			categoryName = root.findall('NAME')
+			
+			categoryName = categoryName[0].text
 			#self.response.out.write("<br/>category = " + categoryName)
 			
 			# check whether the category with the same name is already present
@@ -143,14 +119,14 @@ def importCategory(self, user_name, category_file, url, url_linktext, back_url):
 
 				# add items in the newly created category
 				for child in root:
-					if child.tag.upper() == "ITEM":
+					if child.tag == "ITEM":
 						childName = child.findall('NAME')
 						createNewItem(item_name=childName[0].text, category_name=category_new.name, user_name=category_new.author, votes_for=0, votes_against=0)
 												
 			else:
 				error_msg = "Conflict: Category '" + categoryName + "' cannot be imported."		
-	else:
-		error_msg = "Invalid XML file"
+		else:
+			error_msg = "Invalid XML file"
 		
 	template_values = {
 				'user_name': user_name,
@@ -164,7 +140,37 @@ def importCategory(self, user_name, category_file, url, url_linktext, back_url):
 	template = jinja_environment.get_template('import.html')
 	self.response.out.write(template.render(template_values))
 		
-def isValidXML(contents):
-	# need to implement this
+def isValidXML(self, contents):
 	
-	return True
+	if contents==None or contents.strip()=="":
+		return False, "Error: Empty XML file"
+	
+	try:
+		root = fromstring(contents)
+	except:
+		return False, "Error: Invalid XML file"
+
+	category_name_found = False
+	if root.tag == "CATEGORY":
+		categoryName = root.findall('NAME')
+		if len(categoryName) == 1:
+			for child in root:
+				if child.tag == "ITEM":
+					childName = child.findall('NAME')
+					if len(childName) == 1:
+						pass
+					else:
+						self.response.out.write("<br/>child with no tag or more than one tags with name='NAME' present")
+						return False, "Error: Exactly one <NAME> tag expected for each <ITEM>"
+				else:
+					if category_name_found == False:
+						category_name_found = True
+						pass
+					else:
+						return False, "Error: Invalid tag : '" + child.tag + "'"
+		else:
+			return False, "Error: Root tag CATEGORY has more than one <NAME> tags"
+	else:
+		return False, "Error: Invalid root tag : '" + root.tag + "'"
+	
+	return True, "Category imported successfully"
